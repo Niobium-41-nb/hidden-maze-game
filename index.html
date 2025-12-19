@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>隐藏迷宫 - Hidden Maze</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header class="game-header">
+            <h1><i class="fas fa-chess-board"></i> 隐藏迷宫</h1>
+            <p class="subtitle">探索未知，发现路径</p>
+        </header>
+
+        <main class="game-main">
+            <div class="game-area">
+                <div class="canvas-container">
+                    <canvas id="gameCanvas" width="600" height="600"></canvas>
+                    <div class="canvas-overlay" id="gameOverlay">
+                        <div class="start-screen" id="startScreen">
+                            <h2>欢迎来到隐藏迷宫</h2>
+                            <p>选择游戏模式开始冒险</p>
+                            <div class="mode-selection">
+                                <button class="mode-btn active" data-mode="permanent">
+                                    <i class="fas fa-map"></i>
+                                    <span>永久显示模式</span>
+                                    <small>已探索区域永久可见</small>
+                                </button>
+                                <button class="mode-btn" data-mode="instant">
+                                    <i class="fas fa-eye"></i>
+                                    <span>即时视野模式</span>
+                                    <small>只显示当前视野</small>
+                                </button>
+                            </div>
+                            <button class="start-btn" id="startBtn">
+                                <i class="fas fa-play"></i> 开始游戏
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="game-controls">
+                    <div class="control-panel">
+                        <h3><i class="fas fa-gamepad"></i> 游戏控制</h3>
+                        
+                        <div class="control-group">
+                            <h4><i class="fas fa-cog"></i> 游戏设置</h4>
+                            <div class="setting-item">
+                                <label for="mazeSize">迷宫大小:</label>
+                                <select id="mazeSize">
+                                    <option value="10">10×10 (简单)</option>
+                                    <option value="15" selected>15×15 (标准)</option>
+                                    <option value="20">20×20 (困难)</option>
+                                    <option value="25">25×25 (专家)</option>
+                                </select>
+                            </div>
+                            <div class="setting-item">
+                                <label for="viewMode">视野模式:</label>
+                                <div class="mode-toggle">
+                                    <button class="toggle-btn active" id="modePermanent">
+                                        <i class="fas fa-map"></i> 永久
+                                    </button>
+                                    <button class="toggle-btn" id="modeInstant">
+                                        <i class="fas fa-eye"></i> 即时
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="control-group">
+                            <h4><i class="fas fa-user"></i> 玩家状态</h4>
+                            <div class="stats">
+                                <div class="stat-item">
+                                    <i class="fas fa-shoe-prints"></i>
+                                    <span>步数: <span id="moveCount">0</span></span>
+                                </div>
+                                <div class="stat-item">
+                                    <i class="fas fa-bullseye"></i>
+                                    <span>探索率: <span id="exploreRate">0%</span></span>
+                                </div>
+                                <div class="stat-item">
+                                    <i class="fas fa-flag-checkered"></i>
+                                    <span>状态: <span id="gameStatus">准备中</span></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="control-group">
+                            <h4><i class="fas fa-directions"></i> 移动控制</h4>
+                            <div class="movement-controls">
+                                <button class="move-btn" id="moveUp">
+                                    <i class="fas fa-arrow-up"></i>
+                                </button>
+                                <div class="horizontal-moves">
+                                    <button class="move-btn" id="moveLeft">
+                                        <i class="fas fa-arrow-left"></i>
+                                    </button>
+                                    <button class="move-btn" id="moveDown">
+                                        <i class="fas fa-arrow-down"></i>
+                                    </button>
+                                    <button class="move-btn" id="moveRight">
+                                        <i class="fas fa-arrow-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="hint">提示: 也可以点击迷宫中的单元格移动</p>
+                        </div>
+
+                        <div class="action-buttons">
+                            <button class="action-btn restart" id="restartBtn">
+                                <i class="fas fa-redo"></i> 重新开始
+                            </button>
+                            <button class="action-btn hint" id="hintBtn">
+                                <i class="fas fa-lightbulb"></i> 提示
+                            </button>
+                            <button class="action-btn solve" id="solveBtn">
+                                <i class="fas fa-route"></i> 显示路径
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="game-info">
+                <div class="info-card">
+                    <h3><i class="fas fa-info-circle"></i> 游戏说明</h3>
+                    <ul>
+                        <li><strong>目标:</strong> 从起点(绿色)到达终点(红色)</li>
+                        <li><strong>移动:</strong> 点击相邻单元格或使用方向按钮</li>
+                        <li><strong>视野:</strong> 只能看到当前位置周围的区域</li>
+                        <li><strong>模式:</strong> 
+                            <span class="mode-desc permanent">永久模式 - 已探索区域永久可见</span>
+                            <span class="mode-desc instant">即时模式 - 只显示当前视野</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="legend-card">
+                    <h3><i class="fas fa-key"></i> 图例说明</h3>
+                    <div class="legend-items">
+                        <div class="legend-item">
+                            <div class="color-box start"></div>
+                            <span>起点 (绿色)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="color-box end"></div>
+                            <span>终点 (红色)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="color-box player"></div>
+                            <span>玩家位置 (蓝色)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="color-box explored"></div>
+                            <span>已探索区域</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="color-box unexplored"></div>
+                            <span>未探索区域</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="color-box wall"></div>
+                            <span>墙壁</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="game-footer">
+            <p>隐藏迷宫游戏 - 基于深度优先搜索算法生成</p>
+            <p class="instructions">使用鼠标点击或方向键控制玩家移动</p>
+        </footer>
+    </div>
+
+    <!-- 游戏脚本 -->
+    <script src="maze.js"></script>
+    <script src="view.js"></script>
+    <script src="game.js"></script>
+    <script src="ui.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>
